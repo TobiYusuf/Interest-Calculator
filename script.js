@@ -55,9 +55,22 @@ let installments;
 clearBreakdown.addEventListener("click", () => {
   showAndHideBreakdown();
   // Initial variables after
-  // sRatePlusDp = [];
-  // gbfList = [];
-  // tenorDaysList = [];
+  sRatePlusDp = [];
+  gbfList = [];
+  tenorDaysList = [];
+  const parent = document.querySelector(".payment__breakdown");
+  // let tenorDaySelected = e.split(" ")[0];
+
+  const numberOfChildElement = parent.childElementCount;
+  if (numberOfChildElement > 3) {
+    // Select the fourth element
+    const fourthElement = parent.children[2];
+
+    // Remove the fourth element and all subsequent elements
+    while (fourthElement.nextSibling) {
+      parent.removeChild(fourthElement.nextSibling);
+    }
+  }
 
   // clear tenor selection to avoid duplicate
   tenorSelection.innerHTML = "";
@@ -72,6 +85,8 @@ function showAndHideBreakdown() {
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
+  // change innertext of initial deposit number
+
   for (dpRate of downPayment) {
     ticketPrice = parseFloat(amount.value.replace(/,/g, ""));
     gbf = ticketPrice - dpRate * ticketPrice;
@@ -81,7 +96,6 @@ form.addEventListener("submit", (e) => {
     sRatePlusDp.push(initialDesposit);
   }
 
-  // change innertext of initial deposit number
   ideposit.innerText = `N${convertNumStr(sRatePlusDp[0])}`;
   secondPayment.innerText = `N${convertNumStr(gbfList[0])}`;
 
@@ -154,11 +168,10 @@ downPaymentOption.addEventListener("change", () => {
   let tenor = tenorSelection;
   tenor = tenor.options[tenor.selectedIndex].text;
   tenor = parseInt(tenor.split(" ")[0]);
-  console.log(tenor);
 
   let gbfNumericPercentage = 1 - downPaymentRate();
   gbf = parseInt(ticketPrice) * gbfNumericPercentage;
-  console.log(gbf);
+
   // split gbf into installments
   if (tenor / 30 >= 2) {
     console.log(tenor);
@@ -188,20 +201,44 @@ tenorSelection.addEventListener("change", () => {
 
   gbf = ticketPrice - dpRate * ticketPrice;
   let deposit = scRate * gbf + dpRate * ticketPrice;
+  console.log(gbf);
 
   ideposit.innerText = `N${deposit.toLocaleString("en-US")}`;
+
+  sRatePlusDp = [];
+  for (let i = 0; i < downPayment.length; i++) {
+    ticketPrice = parseFloat(amount.value.replace(/,/g, ""));
+    gbf1 = ticketPrice - downPayment[i] * ticketPrice;
+    gbfList.push(gbf1);
+
+    initialDesposit =
+      tenorDurationAndRates[e] * gbf1 + downPayment[i] * ticketPrice;
+    sRatePlusDp.push(initialDesposit);
+  }
+  downPaymentOption.innerHTML = "";
+  for (i = 0; i < sRatePlusDp.length; i++) {
+    newOption = document.createElement("option");
+    newOption.innerText = `N${convertNumStr(sRatePlusDp[i])} (${(
+      downPayment[i] * 100
+    ).toFixed(0)}%)`;
+    downPaymentOption.appendChild(newOption);
+    if (newOption.innerText.split(" ")[0] === ideposit.innerText) {
+      newOption.selected = true;
+    }
+  }
+  // console.log(sRatePlusDp);
 
   // change second payment date accoring to tenor selected
   // second payment date will booking date + tenor
 
   // change breakdown according to tenor selection
+
   const parent = document.querySelector(".payment__breakdown");
   let tenorDaySelected = e.split(" ")[0];
 
   const numberOfChildElement = parent.childElementCount;
   if (numberOfChildElement > 3) {
     // Select the fourth element
-    console.log("working");
     const fourthElement = parent.children[2];
 
     // Remove the fourth element and all subsequent elements
@@ -210,9 +247,13 @@ tenorSelection.addEventListener("change", () => {
     }
   }
 
-  installments = parseInt(gbf / (tenorDaySelected / 30));
+  console.log(tenorDaySelected);
+  let numOfPayment = parseInt(tenorDaySelected / 30);
   console.log(gbf);
-  console.log(installments);
+  console.log(numOfPayment);
+  console.log(gbf / numOfPayment);
+
+  installments = parseInt(gbf / (tenorDaySelected / 30));
 
   const installmentLvl = [
     "Third Payment",
@@ -221,7 +262,8 @@ tenorSelection.addEventListener("change", () => {
     "Sixth Payment",
     "Final Payment",
   ];
-  const dueDates = [];
+  // console.log(installments);
+  // console.log(gbf);
 
   if (tenorDaySelected / 30 < 2) {
     secondPayment.innerText = gbf;
@@ -247,7 +289,6 @@ tenorSelection.addEventListener("change", () => {
       divContainer.appendChild(paymentDesc);
       divContainer.appendChild(paymentAmt);
       divContainer.appendChild(paymentDate);
-      console.log(divContainer);
 
       // Get a reference to the parent element
       parent.appendChild(divContainer);
