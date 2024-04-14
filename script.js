@@ -1,6 +1,7 @@
 // alert("Hello world");
 const downPayment = [
-  0.1, 0.25, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9,
+  0.1, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85,
+  0.9,
 ];
 
 const tenorDurationAndRates = {
@@ -53,14 +54,16 @@ let installments;
 
 clearBreakdown.addEventListener("click", () => {
   showAndHideBreakdown();
-  sRatePlusDp = [];
-  gbfList = [];
-  tenorDaysList = [];
+  // Initial variables after
+  // sRatePlusDp = [];
+  // gbfList = [];
+  // tenorDaysList = [];
 
   // clear tenor selection to avoid duplicate
   tenorSelection.innerHTML = "";
 });
 
+// show or hide PSS calculator and payment breakdown
 function showAndHideBreakdown() {
   pssBrkdwn.classList.toggle("hide");
   pssCalc.classList.toggle("hide");
@@ -79,15 +82,12 @@ form.addEventListener("submit", (e) => {
   }
 
   // change innertext of initial deposit number
-  ideposit.innerText = `N${sRatePlusDp[0].toLocaleString("en-US")}`;
-  secondPayment.innerText = `N${gbfList[0].toLocaleString("en-US")}`;
-
-  // console.log(sRatePlusDp);
-  // console.log(initialDesposit);
+  ideposit.innerText = `N${convertNumStr(sRatePlusDp[0])}`;
+  secondPayment.innerText = `N${convertNumStr(gbfList[0])}`;
 
   for (i = 0; i < sRatePlusDp.length; i++) {
     newOption = document.createElement("option");
-    newOption.innerText = `N${sRatePlusDp[i].toLocaleString("en-US")} (${(
+    newOption.innerText = `N${convertNumStr(sRatePlusDp[i])} (${(
       downPayment[i] * 100
     ).toFixed(0)}%)`;
     downPaymentOption.appendChild(newOption);
@@ -100,8 +100,7 @@ form.addEventListener("submit", (e) => {
 
   for (let key of Object.keys(tenorDurationAndRates)) {
     // console.log(key);
-    daysToTravel = differenceInDays(serviceDate.value, bookingDate.value);
-    daysToTravel = daysToTravel - 5;
+    daysToTravel = differenceInDays(serviceDate.value, bookingDate.value, 5);
     let newOption = document.createElement("option");
     tenorDays = key.split(" ")[0];
     // convert the hours into days
@@ -116,43 +115,77 @@ form.addEventListener("submit", (e) => {
     // console.log(tenorDays);
   }
 
-  pssCalc.classList.toggle("hide");
-  pssBrkdwn.classList.toggle("hide");
+  showAndHideBreakdown();
 });
+
+function convertNumStr(num) {
+  return num.toLocaleString("en-US");
+}
+
+// Function to calculate the difference in days between two dates
+function differenceInDays(date1, date2, gracePeriod) {
+  // Convert both dates to milliseconds since Unix epoch
+  date1 = new Date(date1);
+  date2 = new Date(date2);
+
+  const date1Milliseconds = date1.getTime();
+  const date2Milliseconds = date2.getTime();
+
+  // Calculate the difference in milliseconds
+  const differenceMilliseconds = Math.abs(
+    date2Milliseconds - date1Milliseconds
+  );
+
+  // Convert milliseconds to days (1 day = 24 hours = 24 * 60 * 60 * 1000 milliseconds)
+  const differenceDays = Math.ceil(
+    differenceMilliseconds / (1000 * 60 * 60 * 24)
+  );
+  return differenceDays - gracePeriod;
+}
 
 downPaymentOption.addEventListener("change", () => {
   let selectedDeposit = downPaymentOption.value.split(" ")[0];
   ideposit.innerText = selectedDeposit;
-  const installmentBrkdwn = document.querySelector(".amount");
+
+  // Select all the installment payment
+  const installmentBrkdwn = document.querySelectorAll(".amount");
+  // console.log(document.querySelectorAll(".amount"));
+
   let tenor = tenorSelection;
   tenor = tenor.options[tenor.selectedIndex].text;
+  tenor = parseInt(tenor.split(" ")[0]);
+  console.log(tenor);
 
-  // let deposit = scRate * gbf + dpRate * ticketPrice
-
-  gbf =
-    parseInt(ticketPrice) -
-    parseInt(selectedDeposit.replace(/[N,]/g, "").toLocaleString("en-US"));
-  // console.log(ticketPrice);
+  let gbfNumericPercentage = 1 - downPaymentRate();
+  gbf = parseInt(ticketPrice) * gbfNumericPercentage;
   console.log(gbf);
   // split gbf into installments
   if (tenor / 30 >= 2) {
     console.log(tenor);
-    installmentBrkdwn.innerText = parseInt(gbf / (tenor / 30));
-    console.log(parseInt(gbf / (tenor / 30)));
+    for (let i = 0; i < installmentBrkdwn.length; i++) {
+      installmentBrkdwn[i].innerText = parseInt(gbf / (tenor / 30));
+      console.log(parseInt(gbf / (tenor / 30)));
+    }
   } else {
-    installmentBrkdwn.innerText = parseInt(gbf);
-    console.log(parseInt(gbf));
+    for (let i = 0; i < installmentBrkdwn.length; i++) {
+      installmentBrkdwn[i].innerText = Math.round(parseInt(gbf));
+      console.log("********", parseInt(gbf));
+    }
   }
-  console.log(gbf);
+
   // Append installments to payment breakdown
 });
+
+function downPaymentRate() {
+  return downPaymentOption.value.split(" ")[1].replace(/[()%]/g, "") / 100;
+}
 
 tenorSelection.addEventListener("change", () => {
   let e = tenorSelection;
   e = e.options[e.selectedIndex].text;
   let scRate = e in tenorDurationAndRates ? tenorDurationAndRates[e] : null;
-  let dpRate =
-    downPaymentOption.value.split(" ")[1].replace(/[()%]/g, "") / 100;
+  let dpRate = downPaymentRate();
+
   gbf = ticketPrice - dpRate * ticketPrice;
   let deposit = scRate * gbf + dpRate * ticketPrice;
 
@@ -177,7 +210,7 @@ tenorSelection.addEventListener("change", () => {
     }
   }
 
-  installments = gbf / (tenorDaySelected / 30);
+  installments = parseInt(gbf / (tenorDaySelected / 30));
   console.log(gbf);
   console.log(installments);
 
@@ -190,6 +223,10 @@ tenorSelection.addEventListener("change", () => {
   ];
   const dueDates = [];
 
+  if (tenorDaySelected / 30 < 2) {
+    secondPayment.innerText = gbf;
+  }
+
   if (tenorDaySelected / 30 >= 2) {
     // check if there is more than three elements then remove all elements beside first three
 
@@ -200,6 +237,8 @@ tenorSelection.addEventListener("change", () => {
       divContainer.classList.add("flexxi");
       const paymentDesc = document.createElement("p");
       const paymentAmt = document.createElement("p");
+      paymentAmt.classList.add("amount");
+
       const paymentDate = document.createElement("p");
       paymentDesc.textContent = installmentLvl[i]; //installments
       secondPayment.innerText = paymentAmt.textContent = installments; // gbf
@@ -267,24 +306,3 @@ inputField.oninput = function () {
     this.value = output;
   }
 };
-
-// Function to calculate the difference in days between two dates
-function differenceInDays(date1, date2) {
-  // Convert both dates to milliseconds since Unix epoch
-  date1 = new Date(date1);
-  date2 = new Date(date2);
-
-  const date1Milliseconds = date1.getTime();
-  const date2Milliseconds = date2.getTime();
-
-  // Calculate the difference in milliseconds
-  const differenceMilliseconds = Math.abs(
-    date2Milliseconds - date1Milliseconds
-  );
-
-  // Convert milliseconds to days (1 day = 24 hours = 24 * 60 * 60 * 1000 milliseconds)
-  const differenceDays = Math.ceil(
-    differenceMilliseconds / (1000 * 60 * 60 * 24)
-  );
-  return differenceDays;
-}
