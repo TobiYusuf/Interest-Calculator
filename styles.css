@@ -1,0 +1,56 @@
+body {
+  height: 100vh;
+}
+
+.logo {
+  width: 200px;
+  height: 50px;
+}
+
+.flag {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.country {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#calculator-section {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.PSS-calculator,
+.PSS-breakdown {
+  display: flex;
+  /* justify-content: center; */
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.hide {
+  display: none;
+}
+
+label {
+  font-size: 1rem; /* Change the font size to your desired size */
+  font-weight: bold; /* Make the font bold */
+}
+
+/* input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+} */
+
+.flexxi {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: repeat(auto-fill, 1fr);
+}
