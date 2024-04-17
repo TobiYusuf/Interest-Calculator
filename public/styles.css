@@ -1,5 +1,6 @@
 body {
   height: 100vh;
+  font-family: "Roboto", sans-serif;
 }
 
 .logo {
@@ -41,8 +42,7 @@ body {
 }
 
 label {
-  font-size: 1rem; /* Change the font size to your desired size */
-  font-weight: bold; /* Make the font bold */
+  font-size: 1.5rem;
 }
 
 /* input[type="date"]::-webkit-calendar-picker-indicator {
