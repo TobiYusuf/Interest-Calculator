@@ -388,30 +388,35 @@ form.addEventListener("submit", (e) => {
     bookingDate.value,
     serviceDate.value
   );
+  let inputTicketPrice = parseFloat(amount.value.replace(/,/g, ""));
   if (daysToTravelCheck <= 3) {
-    console.log("Its less than three days");
-    console.log(daysToTravelCheck);
+    const errorMsg = document.querySelector(".input-error");
+    errorMsg.innerText =
+      "The booking date should be more than 3 days before departure date";
+
+    let myModal = new bootstrap.Modal(document.getElementById("popup-alert"));
+    myModal.show();
+  } else if (inputTicketPrice < 500 || inputTicketPrice > 100000000) {
+    const errorMsg = document.querySelector(".input-error");
+    errorMsg.innerText = "The Minimum amount is 500 and maximum is 100,000,000";
+
     let myModal = new bootstrap.Modal(document.getElementById("popup-alert"));
     myModal.show();
   } else {
-    console.log("Its more than 3 days, please reselect Dates");
-    console.log(daysToTravelCheck);
     // Function to show the modal when the page loads
     // remove dropdown menu
     for (let item of dropDownItems) {
       item.classList.add("hide");
     }
 
-    // show only flag of country selected
-
     // change innertext of initial deposit number
     for (dpRate of downPayment) {
       ticketPrice = parseFloat(amount.value.replace(/,/g, ""));
       gbf = (1 - dpRate) * ticketPrice;
-      gbfList.push(gbf);
+      gbfList.push(Math.round(gbf));
 
       initialDesposit = initialServiceCharge * gbf + dpRate * ticketPrice;
-      sRatePlusDp.push(initialDesposit);
+      sRatePlusDp.push(Math.round(initialDesposit));
     }
 
     // console.log(`N${convertNumStr(sRatePlusDp[0])}`);
@@ -423,6 +428,8 @@ form.addEventListener("submit", (e) => {
     // format dates and add to payment breakdown
     const dueDate = formatDateToDayMonthYear(currentDate);
     secondDuedate.innerText = dueDate;
+    const installmentDesc = document.querySelector(".installment-desc");
+    installmentDesc.innerText = "Final Payment";
 
     for (let i = 0; i < sRatePlusDp.length; i++) {
       newOption = document.createElement("option");
@@ -487,6 +494,7 @@ function differenceInDays(startDate, endDate, gracePeriod = 0) {
 downPaymentOption.addEventListener("change", () => {
   let selectedDeposit = downPaymentOption.value.split(" ")[0];
   ideposit.innerText = selectedDeposit;
+  // console.log(selectedDeposit);
 
   // Select all the installment payment
   const installmentBrkdwn = document.querySelectorAll(".amount");
@@ -497,7 +505,10 @@ downPaymentOption.addEventListener("change", () => {
   tenor = parseInt(tenor.split(" ")[0]);
 
   let gbfNumericPercentage = 1 - downPaymentRate();
-  gbf = parseInt(ticketPrice) * gbfNumericPercentage;
+  // console.log(gbfNumericPercentage.toFixed(2));
+  gbf = parseFloat(ticketPrice) * gbfNumericPercentage.toFixed(2);
+  // console.log(gbf);
+  gbf = Math.round(gbf);
 
   // split gbf into installments
   if (tenor !== 72 && tenor / 30 >= 2) {
@@ -509,7 +520,7 @@ downPaymentOption.addEventListener("change", () => {
     }
   } else if (tenor === 72 || tenor / 30 < 2) {
     for (let i = 0; i < installmentBrkdwn.length; i++) {
-      installmentBrkdwn[i].innerText = convertNumStr(Math.round(parseInt(gbf)));
+      installmentBrkdwn[i].innerText = convertNumStr(parseInt(gbf));
     }
   }
   // Check if the element is present
@@ -519,7 +530,7 @@ downPaymentOption.addEventListener("change", () => {
     // If the element is present, remove it
     element.remove();
   } else {
-    console.log("Element not found");
+    // console.log("Element not found");
   }
 
   calculateTotal();
@@ -539,22 +550,22 @@ tenorSelection.addEventListener("change", () => {
   let dpRate = downPaymentRate();
 
   gbf = ticketPrice - dpRate * ticketPrice;
-  let deposit = scRate * gbf + dpRate * ticketPrice;
-  console.log(deposit);
+  let deposit = parseFloat(scRate * gbf + dpRate * ticketPrice);
 
-  ideposit.innerText = convertNumStr(deposit);
+  ideposit.innerText = convertNumStr(Math.round(deposit));
 
   sRatePlusDp = [];
   for (let i = 0; i < downPayment.length; i++) {
     ticketPrice = parseFloat(amount.value.replace(/,/g, ""));
     gbf1 = ticketPrice - downPayment[i] * ticketPrice;
-    gbfList.push(gbf1);
+    gbfList.push(Math.round(gbf1));
 
     initialDesposit =
       tenorDurationAndRates[e] * gbf1 + downPayment[i] * ticketPrice;
-    sRatePlusDp.push(initialDesposit);
+    sRatePlusDp.push(Math.round(initialDesposit));
   }
   downPaymentOption.innerHTML = "";
+
   for (i = 0; i < sRatePlusDp.length; i++) {
     newOption = document.createElement("option");
     newOption.innerText = `${convertNumStr(sRatePlusDp[i])} (${(
@@ -589,29 +600,22 @@ tenorSelection.addEventListener("change", () => {
 
   // console.log(tenorDaySelected);
   if (tenorDaySelected === "72") {
-    installments = parseInt(gbf);
+    installments = Math.round(gbf);
   } else {
-    installments = parseInt(gbf / (tenorDaySelected / 30));
+    installments = Math.round(gbf / (tenorDaySelected / 30));
   }
-
-  const installmentLvl = [
-    "Second Installment",
-    "Third Installment",
-    "Fourth Installment",
-    "Fifth Installment",
-    "Sixth Installment",
-  ];
 
   if (
     tenorDaySelected === "24" ||
     tenorDaySelected === "48" ||
     tenorDaySelected === "72"
   ) {
-    secondPayment.innerText = convertNumStr(gbf);
+    secondPayment.innerText = convertNumStr(Math.round(gbf));
 
     calculateTotal();
-    // console.log(changeSecondDueDate(tenorDaySelected / 24));
     secondDuedate.innerText = changeSecondDueDate(tenorDaySelected / 24);
+    const installmentDesc = document.querySelector(".installment-desc");
+    installmentDesc.innerText = "Final Payment";
   }
 
   if (
@@ -620,31 +624,45 @@ tenorSelection.addEventListener("change", () => {
     tenorDaySelected !== "72" &&
     tenorDaySelected / 30 < 2
   ) {
-    secondPayment.innerText = convertNumStr(gbf);
+    secondPayment.innerText = convertNumStr(Math.round(gbf));
 
     calculateTotal();
     // console.log(changeSecondDueDate(tenorDaySelected));
     secondDuedate.innerText = changeSecondDueDate(tenorDaySelected);
+    const installmentDesc = document.querySelector(".installment-desc");
+    installmentDesc.innerText = "Final Payment";
   }
 
   let dateDate = [60, 90, 120, 150, 180];
+  const installmentLvl = [
+    "Second Installment",
+    "Third Installment",
+    "Fourth Installment",
+    "Fifth Installment",
+  ];
 
   if (tenorDaySelected !== "72" && tenorDaySelected / 30 >= 2) {
     const dateForBookingDate = changeSecondDueDate(30);
-    console.log("********", dateForBookingDate);
     // change second installment payment
     secondDuedate.innerText = dateForBookingDate;
+    const installmentDesc = document.querySelector(".installment-desc");
+    installmentDesc.innerText = "First Payment";
 
     // then go on to create the additional elements
-    let result = Math.floor(tenorDaySelected / 30 - 1);
-    for (let i = 0; i < result; i++) {
+    let numPayment = Math.floor(tenorDaySelected / 30 - 1);
+    for (let i = 0; i < numPayment; i++) {
       const divContainer = document.createElement("div");
       divContainer.classList.add("flexxi");
       const paymentDesc = document.createElement("p");
       const paymentAmt = document.createElement("p");
       paymentAmt.classList.add("amount");
       const paymentDate = document.createElement("p");
-      paymentDesc.textContent = installmentLvl[i]; //installments
+      if (i !== numPayment - 1) {
+        paymentDesc.textContent = installmentLvl[i];
+      } else {
+        paymentDesc.textContent = "Final Payment"; //installments
+      }
+
       secondPayment.innerText = paymentAmt.textContent =
         convertNumStr(installments); // gbf
 
@@ -673,7 +691,6 @@ function calculateTotal() {
   const parent = document.querySelector(".payment__breakdown");
   let receivables = document.querySelectorAll(".amount");
   let firstPayment = document.querySelector(".initial-Deposit");
-  console.log(firstPayment.innerText);
 
   const divContainer = document.createElement("div");
   divContainer.classList.add("sumtotal", "flexxi");
@@ -688,7 +705,6 @@ function calculateTotal() {
   let sum = 0;
   for (let i of receivables) {
     sum += parseInt(i.innerText.replace(/,/g, ""));
-    console.log(parseInt(i.innerText.replace(/,/g, "")));
   }
   sum += parseInt(firstPayment.innerText.replace(/,/g, ""));
   paymentAmt.innerText = convertNumStr(sum);

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bootstrap demo</title>
+    <title>PSS Calculator</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -229,7 +229,7 @@
               </select>
 
               <label for="service-date" class="form-label asterisk"
-                >Service Date</label
+                >Departure Date</label
               >
               <input
                 type="date"
@@ -241,7 +241,7 @@
 
               <button
                 type="submit"
-                class="btn btn-primary btn-lg mt-3"
+                class="btn btn-primary mt-3"
                 id="get-payment-breakdown"
               >
                 Get Payment Breakdown
@@ -249,7 +249,7 @@
             </form>
           </div>
 
-          <!-- Button trigger modal for wrong Travel Dates -->
+          <!-- Button trigger modal for wrong Input -->
           <div class="modal-alert">
             <span
               type="button"
@@ -257,7 +257,7 @@
               data-bs-toggle="modal"
               data-bs-target="#popup-alert"
             >
-              <!-- Launch demo modal -->
+              <!-- Launch modal -->
             </span>
 
             <!-- Modal -->
@@ -272,7 +272,7 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">
-                      Error in Date Selection
+                      Input Error
                     </h1>
                     <button
                       type="button"
@@ -282,7 +282,7 @@
                     ></button>
                   </div>
                   <div class="modal-body">
-                    <p>
+                    <p class="input-error">
                       The booking date should be more than 3 days before
                       departure date
                     </p>
@@ -341,7 +341,7 @@
                   <p>Today</p>
                 </div>
                 <div class="third-payment flexxi">
-                  <p>First Installment</p>
+                  <p class="installment-desc">First Installment</p>
                   <p class="amount second-payment"></p>
                   <p class="date second-duedate"></p>
                 </div>
