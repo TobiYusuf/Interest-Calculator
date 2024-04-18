@@ -1,11 +1,12 @@
 body {
   height: 100vh;
-  font-family: "Roboto", sans-serif;
+  font-family: "Rubik", sans-serif;
+  position: relative;
 }
 
 .logo {
-  width: 200px;
-  height: 50px;
+  width: 180px;
+  height: 55px;
 }
 
 .flag {
@@ -13,12 +14,6 @@ body {
   height: 20px;
   border-radius: 50%;
   margin-right: 15px;
-}
-
-.country {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 #calculator-section {
@@ -31,26 +26,125 @@ body {
 .PSS-calculator,
 .PSS-breakdown {
   display: flex;
-  /* justify-content: center; */
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   text-align: left;
+  font-weight: 600;
+}
+
+.PSS_calculator {
+  box-sizing: border-box;
+  padding-left: 20px;
+  padding-right: 20px;
+  /* width: 80%; */
+  font-weight: 600;
 }
 
 .hide {
   display: none;
 }
 
-label {
-  font-size: 1.5rem;
+.asterisk:after {
+  content: " *";
+  color: red;
 }
 
-/* input[type="date"]::-webkit-calendar-picker-indicator {
-  display: none;
-} */
+label {
+  color: rgb(109, 132, 148);
+  font-size: 18px;
+  font-weight: 400;
+}
+
+select {
+  color: rgb(109, 132, 148);
+  font-size: 14px;
+  /* font-weight: 400; */
+}
+
+p {
+  color: rgb(109, 132, 148);
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+.heading {
+  font-weight: 700;
+  color: rgb(109, 132, 148);
+}
+
+.sumtotal {
+  font-weight: 700;
+}
+
+.total {
+  color: rgb(57, 154, 244);
+  font-size: 20px;
+}
+
+.heading-desc {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: rgb(109, 132, 148);
+}
+
+hr {
+  margin: 0;
+}
+
+input[type="type"]::placeholder {
+  color: rgb(109, 132, 148); /* Change the color of the placeholder text */
+  /* font-size: 10px; Reduce the font size of the placeholder text */
+  font-family: "Rubik", sans-serif;
+}
+
+input[type="date"]::placeholder,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  color: rgb(
+    109,
+    132,
+    148
+  ); /* Change the color of the placeholder text and calendar icon */
+  font-size: 19px; /* Reduce the font size of the placeholder text */
+  font-family: "Rubik", sans-serif;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field {
+  color: rgb(109, 132, 148);
+  font-size: 10px;
+  font-family: "Rubik", sans-serif;
+}
+input[type="date"]::-webkit-datetime-edit-day-field {
+  color: rgb(109, 132, 148);
+  font-size: 14px;
+  font-family: "Rubik", sans-serif;
+}
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: rgb(109, 132, 148);
+  font-size: 14px;
+  font-family: "Rubik", sans-serif;
+}
+input[type="date"]::-webkit-datetime-edit-text {
+  color: rgb(109, 132, 148);
+  font-size: 14px;
+}
+
+select::placeholder {
+  color: #999; /* Change the color of the placeholder text */
+  font-size: 14px; /* Reduce the font size of the placeholder text */
+}
 
 .flexxi {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: repeat(auto-fill, 1fr);
+}
+
+.modal-alert {
+  position: absolute;
+  top: -100px;
+  /* display: none; */
+}
+
+.clear {
+  margin-bottom: 20px;
 }

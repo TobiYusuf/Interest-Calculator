@@ -266,22 +266,23 @@ let initialServiceCharge;
 
 // Selecte Default rates until country is clicked
 tenorDurationAndRates = {
-  "24 hours": 0.02,
-  "48 hours": 0.02,
-  "72 hours": 0.02,
-  "4 days": 0.03,
-  "5 days": 0.04,
-  "6 days": 0.05,
-  "7 days": 0.07,
-  "14 days": 0.08,
-  "21 days": 0.09,
-  "30 days": 0.1,
-  "60 days": 0.11,
-  "90 days": 0.14,
-  "120 days": 0.16,
-  "150 days": 0.18,
-  "180 days": 0.2,
+  "24 hours": 0.04,
+  "48 hours": 0.04,
+  "72 hours": 0.04,
+  "4 days": 0.05,
+  "5 days": 0.06,
+  "6 days": 0.07,
+  "7 days": 0.09,
+  "14 days": 0.1,
+  "21 days": 0.11,
+  "30 days": 0.12,
+  "60 days": 0.13,
+  "90 days": 0.16,
+  "120 days": 0.18,
+  "150 days": 0.2,
+  "180 days": 0.22,
 };
+
 initialServiceCharge = tenorDurationAndRates["24 hours"];
 
 for (let dropDown of dropDowns) {
@@ -383,67 +384,79 @@ function showAndHideBreakdown() {
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   arrowDropdown.classList.remove("dropdown-toggle");
-
-  // remove dropdown menu
-  for (let item of dropDownItems) {
-    item.classList.add("hide");
-  }
-
-  // show only flag of country selected
-
-  // change innertext of initial deposit number
-  for (dpRate of downPayment) {
-    ticketPrice = parseFloat(amount.value.replace(/,/g, ""));
-    gbf = ticketPrice - dpRate * ticketPrice;
-    gbfList.push(gbf);
-
-    initialDesposit = initialServiceCharge * gbf + dpRate * ticketPrice;
-    console.log(initialServiceCharge);
-    sRatePlusDp.push(initialDesposit);
-  }
-
-  // console.log(`N${convertNumStr(sRatePlusDp[0])}`);
-  ideposit.innerText = `N${convertNumStr(sRatePlusDp[0])}`;
-  secondPayment.innerText = `N${convertNumStr(gbfList[0])}`;
-
-  const currentDate = addTenorToDuedate(24, bookingDate.value);
-
-  // format dates and add to payment breakdown
-  const dueDate = formatDateToDayMonthYear(currentDate);
-  secondDuedate.innerText = dueDate;
-
-  for (let i = 0; i < sRatePlusDp.length; i++) {
-    newOption = document.createElement("option");
-    console.log(`N${convertNumStr(sRatePlusDp[i])}`);
-    newOption.innerText = `N${convertNumStr(sRatePlusDp[i])} (${(
-      downPayment[i] * 100
-    ).toFixed(0)}%)`;
-    downPaymentOption.appendChild(newOption);
-  }
-
-  // Populate the available tenor based on the dates
-  // Calculate all installments after downpayment
-  // how many installments is need
-  // installments needed is gotten from the difference between Booking and service date - travel date
-
-  for (let key of Object.keys(tenorDurationAndRates)) {
-    // console.log(key);
-    daysToTravel = differenceInDays(serviceDate.value, bookingDate.value, 5);
-    let newOption = document.createElement("option");
-    tenorDays = key.split(" ")[0];
-    // convert the hours into days
-    if (tenorDays === "24" || tenorDays === "48" || tenorDays === "72") {
-      tenorDays = tenorDays / 24;
+  const daysToTravelCheck = differenceInDays(
+    bookingDate.value,
+    serviceDate.value
+  );
+  if (daysToTravelCheck <= 3) {
+    console.log("Its less than three days");
+    console.log(daysToTravelCheck);
+    let myModal = new bootstrap.Modal(document.getElementById("popup-alert"));
+    myModal.show();
+  } else {
+    console.log("Its more than 3 days, please reselect Dates");
+    console.log(daysToTravelCheck);
+    // Function to show the modal when the page loads
+    // remove dropdown menu
+    for (let item of dropDownItems) {
+      item.classList.add("hide");
     }
 
-    if (daysToTravel > tenorDays) {
-      newOption.innerText = key;
-      tenorSelection.appendChild(newOption);
-    }
-    // console.log(tenorDays);
-  }
+    // show only flag of country selected
 
-  showAndHideBreakdown();
+    // change innertext of initial deposit number
+    for (dpRate of downPayment) {
+      ticketPrice = parseFloat(amount.value.replace(/,/g, ""));
+      gbf = (1 - dpRate) * ticketPrice;
+      gbfList.push(gbf);
+
+      initialDesposit = initialServiceCharge * gbf + dpRate * ticketPrice;
+      sRatePlusDp.push(initialDesposit);
+    }
+
+    // console.log(`N${convertNumStr(sRatePlusDp[0])}`);
+    ideposit.innerText = `${convertNumStr(sRatePlusDp[0])}`;
+    secondPayment.innerText = `${convertNumStr(gbfList[0])}`;
+
+    const currentDate = addTenorToDuedate(24, bookingDate.value);
+
+    // format dates and add to payment breakdown
+    const dueDate = formatDateToDayMonthYear(currentDate);
+    secondDuedate.innerText = dueDate;
+
+    for (let i = 0; i < sRatePlusDp.length; i++) {
+      newOption = document.createElement("option");
+      newOption.innerText = `${convertNumStr(sRatePlusDp[i])} (${(
+        downPayment[i] * 100
+      ).toFixed(0)}%)`;
+      downPaymentOption.appendChild(newOption);
+    }
+
+    // Populate the available tenor based on the dates
+    // Calculate all installments after downpayment
+    // how many installments is need
+    // installments needed is gotten from the difference between Booking and service date - travel date
+
+    for (let key of Object.keys(tenorDurationAndRates)) {
+      // console.log(key);
+      daysToTravel = differenceInDays(serviceDate.value, bookingDate.value);
+      let newOption = document.createElement("option");
+      tenorDays = key.split(" ")[0];
+      // convert the hours into days
+      if (tenorDays === "24" || tenorDays === "48" || tenorDays === "72") {
+        tenorDays = tenorDays / 24;
+      }
+
+      if (daysToTravel > tenorDays) {
+        newOption.innerText = key;
+        tenorSelection.appendChild(newOption);
+      }
+      // console.log(tenorDays);
+    }
+    calculateTotal();
+
+    showAndHideBreakdown();
+  }
 });
 
 function convertNumStr(num) {
@@ -451,10 +464,10 @@ function convertNumStr(num) {
 }
 
 // Function to calculate the difference in days between two dates
-function differenceInDays(date1, date2, gracePeriod = 0) {
+function differenceInDays(startDate, endDate, gracePeriod = 0) {
   // Convert both dates to milliseconds since Unix epoch
-  date1 = new Date(date1);
-  date2 = new Date(date2);
+  date1 = new Date(startDate);
+  date2 = new Date(endDate);
 
   const date1Milliseconds = date1.getTime();
   const date2Milliseconds = date2.getTime();
@@ -487,16 +500,29 @@ downPaymentOption.addEventListener("change", () => {
   gbf = parseInt(ticketPrice) * gbfNumericPercentage;
 
   // split gbf into installments
-  if (tenor / 30 >= 2) {
-    console.log(tenor);
+  if (tenor !== 72 && tenor / 30 >= 2) {
+    console.log(tenor / 30 >= 2);
     for (let i = 0; i < installmentBrkdwn.length; i++) {
-      installmentBrkdwn[i].innerText = parseInt(gbf / (tenor / 30));
+      installmentBrkdwn[i].innerText = convertNumStr(
+        parseInt(gbf / (tenor / 30))
+      );
     }
-  } else {
+  } else if (tenor === 72 || tenor / 30 < 2) {
     for (let i = 0; i < installmentBrkdwn.length; i++) {
-      installmentBrkdwn[i].innerText = Math.round(parseInt(gbf));
+      installmentBrkdwn[i].innerText = convertNumStr(Math.round(parseInt(gbf)));
     }
   }
+  // Check if the element is present
+  const element = document.querySelector(".sumtotal");
+
+  if (element) {
+    // If the element is present, remove it
+    element.remove();
+  } else {
+    console.log("Element not found");
+  }
+
+  calculateTotal();
 
   // Append installments to payment breakdown
 });
@@ -505,6 +531,7 @@ function downPaymentRate() {
   return downPaymentOption.value.split(" ")[1].replace(/[()%]/g, "") / 100;
 }
 
+// ********************* TENOR SELECTION ****************************
 tenorSelection.addEventListener("change", () => {
   let e = tenorSelection;
   e = e.options[e.selectedIndex].text;
@@ -513,9 +540,9 @@ tenorSelection.addEventListener("change", () => {
 
   gbf = ticketPrice - dpRate * ticketPrice;
   let deposit = scRate * gbf + dpRate * ticketPrice;
-  // console.log(gbf);
+  console.log(deposit);
 
-  ideposit.innerText = `N${deposit.toLocaleString("en-US")}`;
+  ideposit.innerText = convertNumStr(deposit);
 
   sRatePlusDp = [];
   for (let i = 0; i < downPayment.length; i++) {
@@ -530,7 +557,7 @@ tenorSelection.addEventListener("change", () => {
   downPaymentOption.innerHTML = "";
   for (i = 0; i < sRatePlusDp.length; i++) {
     newOption = document.createElement("option");
-    newOption.innerText = `N${convertNumStr(sRatePlusDp[i])} (${(
+    newOption.innerText = `${convertNumStr(sRatePlusDp[i])} (${(
       downPayment[i] * 100
     ).toFixed(0)}%)`;
     downPaymentOption.appendChild(newOption);
@@ -561,33 +588,52 @@ tenorSelection.addEventListener("change", () => {
   }
 
   // console.log(tenorDaySelected);
-  let numOfPayment = parseInt(tenorDaySelected / 30);
-  // console.log(gbf);
-  // console.log(numOfPayment);
-  // console.log(gbf / numOfPayment);
-
-  installments = parseInt(gbf / (tenorDaySelected / 30));
+  if (tenorDaySelected === "72") {
+    installments = parseInt(gbf);
+  } else {
+    installments = parseInt(gbf / (tenorDaySelected / 30));
+  }
 
   const installmentLvl = [
-    "Third Payment",
-    "Fourth Payment",
-    "Fifth Payment",
-    "Sixth Payment",
-    "Final Payment",
+    "Second Installment",
+    "Third Installment",
+    "Fourth Installment",
+    "Fifth Installment",
+    "Sixth Installment",
   ];
-  // console.log(installments);
-  // console.log(gbf);
 
-  if (tenorDaySelected / 30 < 2) {
-    secondPayment.innerText = gbf;
-    console.log(changeSecondDueDate(tenorDaySelected));
+  if (
+    tenorDaySelected === "24" ||
+    tenorDaySelected === "48" ||
+    tenorDaySelected === "72"
+  ) {
+    secondPayment.innerText = convertNumStr(gbf);
+
+    calculateTotal();
+    // console.log(changeSecondDueDate(tenorDaySelected / 24));
+    secondDuedate.innerText = changeSecondDueDate(tenorDaySelected / 24);
+  }
+
+  if (
+    tenorDaySelected !== "24" &&
+    tenorDaySelected !== "48" &&
+    tenorDaySelected !== "72" &&
+    tenorDaySelected / 30 < 2
+  ) {
+    secondPayment.innerText = convertNumStr(gbf);
+
+    calculateTotal();
+    // console.log(changeSecondDueDate(tenorDaySelected));
     secondDuedate.innerText = changeSecondDueDate(tenorDaySelected);
   }
+
   let dateDate = [60, 90, 120, 150, 180];
 
-  if (tenorDaySelected / 30 >= 2) {
-    const dateForBookingDate = changeSecondDueDate(tenorDaySelected, 24);
+  if (tenorDaySelected !== "72" && tenorDaySelected / 30 >= 2) {
+    const dateForBookingDate = changeSecondDueDate(30);
     console.log("********", dateForBookingDate);
+    // change second installment payment
+    secondDuedate.innerText = dateForBookingDate;
 
     // then go on to create the additional elements
     let result = Math.floor(tenorDaySelected / 30 - 1);
@@ -597,13 +643,12 @@ tenorSelection.addEventListener("change", () => {
       const paymentDesc = document.createElement("p");
       const paymentAmt = document.createElement("p");
       paymentAmt.classList.add("amount");
-
       const paymentDate = document.createElement("p");
       paymentDesc.textContent = installmentLvl[i]; //installments
       secondPayment.innerText = paymentAmt.textContent =
         convertNumStr(installments); // gbf
 
-      paymentDate.textContent = changeSecondDueDate(dateDate[i], 24);
+      paymentDate.textContent = changeSecondDueDate(dateDate[i]);
       //second payment + 30days
 
       divContainer.appendChild(paymentDesc);
@@ -618,13 +663,35 @@ tenorSelection.addEventListener("change", () => {
 
       // append element
     }
+
+    // create total amount
+    calculateTotal();
   }
 });
 
-//  Add tenor to get due dates
-function addTenorToDuedate(tenor, date) {
-  const currentDate = new Date(date);
-  return currentDate.setHours(currentDate.getHours() + tenor);
+function calculateTotal() {
+  const parent = document.querySelector(".payment__breakdown");
+  let receivables = document.querySelectorAll(".amount");
+  let firstPayment = document.querySelector(".initial-Deposit");
+  console.log(firstPayment.innerText);
+
+  const divContainer = document.createElement("div");
+  divContainer.classList.add("sumtotal", "flexxi");
+  const paymentDesc = document.createElement("p");
+  const paymentAmt = document.createElement("p");
+  paymentAmt.classList.add("total");
+  paymentDesc.innerText = "Total";
+  divContainer.appendChild(paymentDesc);
+  divContainer.appendChild(paymentAmt);
+  parent.appendChild(divContainer);
+
+  let sum = 0;
+  for (let i of receivables) {
+    sum += parseInt(i.innerText.replace(/,/g, ""));
+    console.log(parseInt(i.innerText.replace(/,/g, "")));
+  }
+  sum += parseInt(firstPayment.innerText.replace(/,/g, ""));
+  paymentAmt.innerText = convertNumStr(sum);
 }
 
 // Function to format date to "day month year"
@@ -655,6 +722,12 @@ function formatDateToDayMonthYear(date) {
   const formattedDate = `${monthNames[monthIndex]} ${day} ${year}`;
 
   return formattedDate;
+}
+
+//  Add tenor to get due dates
+function addTenorToDuedate(tenor, date) {
+  const currentDate = new Date(date);
+  return currentDate.setHours(currentDate.getHours() + tenor);
 }
 
 function changeSecondDueDate(tenorSelected) {
