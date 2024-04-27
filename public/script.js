@@ -289,7 +289,7 @@ for (let dropDown of dropDowns) {
   // Add event listener to the dropdown
 
   dropDown.addEventListener("click", () => {
-    console.log("Selected value:", dropDown.innerText);
+    // console.log("Selected value:", dropDown.innerText);
     // change flag of current country
 
     mainCountryFlag.setAttribute(
@@ -646,7 +646,7 @@ tenorSelection.addEventListener("change", () => {
     // change second installment payment
     secondDuedate.innerText = dateForBookingDate;
     const installmentDesc = document.querySelector(".installment-desc");
-    installmentDesc.innerText = "First Payment";
+    installmentDesc.innerText = "First Installment";
 
     // then go on to create the additional elements
     let numPayment = Math.floor(tenorDaySelected / 30 - 1);
