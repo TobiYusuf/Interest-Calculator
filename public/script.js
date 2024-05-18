@@ -446,7 +446,7 @@ form.addEventListener("submit", (e) => {
 
     for (let key of Object.keys(tenorDurationAndRates)) {
       // console.log(key);
-      daysToTravel = differenceInDays(serviceDate.value, bookingDate.value);
+      daysToTravel = differenceInDays(serviceDate.value, bookingDate.value, 2);
       let newOption = document.createElement("option");
       tenorDays = key.split(" ")[0];
       // convert the hours into days
